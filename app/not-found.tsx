@@ -22,7 +22,10 @@ export default function NotFound() {
           priority={true}
           title="Page Not Found"
         />
-        <Link href="/" className={cn(buttonVariants({ variant: "default" }))}>
+        <Link
+          href="/home"
+          className={cn(buttonVariants({ variant: "default" }))}
+        >
           Go to Home
         </Link>
       </div>
