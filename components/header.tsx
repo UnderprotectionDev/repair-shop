@@ -1,14 +1,13 @@
-"use client";
-
 import { HomeIcon, File, UsersRound, LogOut } from "lucide-react";
 import Link from "next/link";
+import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 
+import { Button } from "@/components/ui/button";
 import NavButton from "@/components/nav-button";
-import { ModeToggle } from "./mode-toggle";
-import { Button } from "./ui/button";
-import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs";
+import { ModeToggle } from "@/components/mode-toggle";
+import { NavButtonMenu } from "@/components/nav-button-menu";
 
-export default function Header() {
+export function Header() {
   return (
     <header className="animate-slide bg-background h-12 p-2 border-b sticky top-0 z-20">
       <div className="flex h-8 items-center justify-between w-full">
@@ -29,7 +28,14 @@ export default function Header() {
         <div className="flex items-center">
           <NavButton href="/tickets" label="Tickets" icon={File} />
 
-          <NavButton href="/customers" label="Customers" icon={UsersRound} />
+          <NavButtonMenu
+            icon={UsersRound}
+            label="Customers Menu"
+            choices={[
+              { title: "Search Customers", href: "/customers" },
+              { title: "New Customer", href: "/customers/form" },
+            ]}
+          />
 
           <ModeToggle />
 

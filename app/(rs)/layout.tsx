@@ -1,4 +1,4 @@
-import Header from "@/components/header";
+import { Header } from "@/components/header";
 
 export default function RSLayout({ children }: { children: React.ReactNode }) {
   return (
