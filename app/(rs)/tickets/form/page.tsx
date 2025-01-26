@@ -2,7 +2,7 @@ import { getCustomer } from "@/lib/queries/getCustomer";
 import { getTicket } from "@/lib/queries/getTicket";
 import { BackButton } from "@/components/back-button";
 import * as Sentry from "@sentry/nextjs";
-import TicketForm from "@/app/(rs)/tickets/form/ticket-form";
+import TicketForm from "./ticket-form";
 
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 
