@@ -3,33 +3,38 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
+
+import { InputWithLabel } from "@/components/inputs/input-with-label";
+import { SelectWithLabel } from "@/components/inputs/select-with-label";
+import { TextAreaWithLabel } from "@/components/inputs/textarea-with-label";
+import { CheckboxWithLabel } from "@/components/inputs/checkbox-with-label";
+
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+
+import { StatesArray } from "@/constants/states-array";
 
 import {
   insertCustomerSchema,
   type insertCustomerSchemaType,
   type selectCustomerSchemaType,
 } from "@/zod-schemas/customer";
-import { Button } from "@/components/ui/button";
-import { InputWithLabel } from "@/components/inputs/input-with-label";
-import { TextAreaWithLabel } from "@/components/inputs/textarea-with-label";
-import { SelectWithLabel } from "@/components/inputs/select-with-label";
 
-import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
-
-import { StatesArray } from "@/constants/states-array";
-import { CheckboxWithLabel } from "@/components/inputs/checkbox-with-label";
+import { useAction } from "next-safe-action/hooks";
+import { saveCustomerAction } from "@/app/actions/save-customer-action";
+import { useToast } from "@/hooks/use-toast";
+import { LoaderCircle } from "lucide-react";
+import { DisplayServerActionResponse } from "@/components/display-server-action-response";
 
 type Props = {
   customer?: selectCustomerSchemaType;
 };
 
 export default function CustomerForm({ customer }: Props) {
-  const { getPermission, getPermissions, isLoading } = useKindeBrowserClient();
+  const { getPermission, isLoading } = useKindeBrowserClient();
   const isManager = !isLoading && getPermission("manager")?.isGranted;
-  const permObj = getPermissions();
-  const isAuthorized =
-    !isLoading &&
-    permObj.permissions.some((perm) => perm === "manager" || perm === "admin");
+
+  const { toast } = useToast();
 
   const defaultValues: insertCustomerSchemaType = {
     id: customer?.id ?? 0,
@@ -52,15 +57,40 @@ export default function CustomerForm({ customer }: Props) {
     defaultValues,
   });
 
+  const {
+    execute: executeSave,
+    result: saveResult,
+    isPending: isSaving,
+    reset: resetSaveAction,
+  } = useAction(saveCustomerAction, {
+    onSuccess({ data }) {
+      if (data?.message) {
+        toast({
+          variant: "default",
+          title: "Success! 🎉",
+          description: data.message,
+        });
+      }
+    },
+    onError({ error }) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Save Failed",
+      });
+    },
+  });
+
   async function submitForm(data: insertCustomerSchemaType) {
-    console.log(data);
+    executeSave(data);
   }
 
   return (
     <div className="flex flex-col gap-1 sm:px-8">
+      <DisplayServerActionResponse result={saveResult} />
       <div>
         <h2 className="text-2xl font-bold">
-          {customer?.id ? "Edit" : "New"} Customer
+          {customer?.id ? "Edit" : "New"} Customer{" "}
           {customer?.id ? `#${customer.id}` : "Form"}
         </h2>
       </div>
@@ -126,7 +156,7 @@ export default function CustomerForm({ customer }: Props) {
 
             {isLoading ? (
               <p>Loading...</p>
-            ) : isManager ? (
+            ) : isManager && customer?.id ? (
               <CheckboxWithLabel<insertCustomerSchemaType>
                 fieldTitle="Active"
                 nameInSchema="active"
@@ -140,15 +170,25 @@ export default function CustomerForm({ customer }: Props) {
                 className="w-3/4"
                 variant="default"
                 title="Save"
+                disabled={isSaving}
               >
-                Save
+                {isSaving ? (
+                  <>
+                    <LoaderCircle className="animate-spin" /> Saving
+                  </>
+                ) : (
+                  "Save"
+                )}
               </Button>
 
               <Button
                 type="button"
                 variant="destructive"
                 title="Reset"
-                onClick={() => form.reset(defaultValues)}
+                onClick={() => {
+                  form.reset(defaultValues);
+                  resetSaveAction();
+                }}
               >
                 Reset
               </Button>
