@@ -51,7 +51,7 @@ export default function TicketTable({ data }: Props) {
   const [sorting, setSorting] = useState<SortingState>([
     {
       id: "ticketDate",
-      desc: false, // false for ascending
+      desc: false,
     },
   ]);
 
@@ -70,7 +70,6 @@ export default function TicketTable({ data }: Props) {
   const columns = columnHeadersArray.map((columnName) => {
     return columnHelper.accessor(
       (row) => {
-        // transformational
         const value = row[columnName];
         if (columnName === "ticketDate" && value instanceof Date) {
           return value.toLocaleDateString("en-US", {
@@ -113,7 +112,6 @@ export default function TicketTable({ data }: Props) {
           );
         },
         cell: ({ getValue }) => {
-          // presentational
           const value = getValue();
           if (columnName === "completed") {
             return (
